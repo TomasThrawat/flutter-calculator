@@ -3,12 +3,14 @@ import 'package:flutter/services.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-    statusBarColor: Colors.black,
-    statusBarIconBrightness: Brightness.light,
-    systemNavigationBarColor: Colors.black,
-    systemNavigationBarIconBrightness: Brightness.light,
-  ));
+  SystemChrome.setSystemUIOverlayStyle(
+    const SystemUiOverlayStyle(
+      statusBarColor: Colors.black,
+      statusBarIconBrightness: Brightness.light,
+      systemNavigationBarColor: Colors.black,
+      systemNavigationBarIconBrightness: Brightness.light,
+    ),
+  );
   runApp(const CalculatorApp());
 }
 
@@ -17,15 +19,15 @@ class CalculatorApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => MaterialApp(
-        title: 'Calculator',
-        debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          brightness: Brightness.dark,
-          useMaterial3: true,
-          scaffoldBackgroundColor: Colors.black,
-        ),
-        home: const CalculatorPage(),
-      );
+    title: 'Calculator',
+    debugShowCheckedModeBanner: false,
+    theme: ThemeData(
+      brightness: Brightness.dark,
+      useMaterial3: true,
+      scaffoldBackgroundColor: Colors.black,
+    ),
+    home: const CalculatorPage(),
+  );
 }
 
 class CalculatorPage extends StatefulWidget {
@@ -37,9 +39,9 @@ class CalculatorPage extends StatefulWidget {
 
 class _CalculatorPageState extends State<CalculatorPage> {
   static const rows = [
-    ['AC', '±', '%', '÷'],
-    ['7', '8', '9', '×'],
-    ['4', '5', '6', '−'],
+    ['AC', 'Â±', '%', 'Ã·'],
+    ['7', '8', '9', 'Ã'],
+    ['4', '5', '6', 'â'],
     ['1', '2', '3', '+'],
     ['0', '.', '='],
   ];
@@ -72,7 +74,7 @@ class _CalculatorPageState extends State<CalculatorPage> {
       case 'AC':
         setState(reset);
         break;
-      case '±':
+      case 'Â±':
         final value = double.tryParse(display);
         if (value != null && value != 0) {
           setState(() => display = format(-value));
@@ -82,7 +84,7 @@ class _CalculatorPageState extends State<CalculatorPage> {
         final value = double.tryParse(display);
         if (value != null) {
           setState(() {
-            expression = format(value) + ' %';
+            expression = '${format(value)} %';
             display = format(value / 100);
             replaceDisplay = false;
           });
@@ -100,9 +102,9 @@ class _CalculatorPageState extends State<CalculatorPage> {
           }
         });
         break;
-      case '÷':
-      case '×':
-      case '−':
+      case 'Ã·':
+      case 'Ã':
+      case 'â':
       case '+':
         chooseOperation(key);
         break;
@@ -130,7 +132,7 @@ class _CalculatorPageState extends State<CalculatorPage> {
       stored = next;
       display = format(next);
       operation = symbol;
-      expression = format(next) + ' ' + symbol;
+      expression = '${format(next)} $symbol';
       replaceDisplay = true;
       lastOperation = null;
       lastOperand = null;
@@ -149,7 +151,7 @@ class _CalculatorPageState extends State<CalculatorPage> {
         return;
       }
       setState(() {
-        expression = format(current) + ' ' + op + ' ' + format(operand) + ' =';
+        expression = '${format(current)} $op ${format(operand)} =';
         display = format(repeated);
         replaceDisplay = true;
       });
@@ -166,7 +168,7 @@ class _CalculatorPageState extends State<CalculatorPage> {
       return;
     }
     setState(() {
-      expression = format(left) + ' ' + op + ' ' + format(right) + ' =';
+      expression = '${format(left)} $op ${format(right)} =';
       display = format(result);
       lastOperation = op;
       lastOperand = right;
@@ -179,9 +181,9 @@ class _CalculatorPageState extends State<CalculatorPage> {
   double? calculate(double a, double b, String op) {
     final result = switch (op) {
       '+' => a + b,
-      '−' => a - b,
-      '×' => a * b,
-      '÷' => b == 0 ? null : a / b,
+      'â' => a - b,
+      'Ã' => a * b,
+      'Ã·' => b == 0 ? null : a / b,
       _ => null,
     };
     return result == null || !result.isFinite ? null : result;
@@ -222,7 +224,7 @@ class _CalculatorPageState extends State<CalculatorPage> {
   }
 
   Widget keyButton(String label) {
-    final isOperator = const {'÷', '×', '−', '+', '='}.contains(label);
+    final isOperator = const {'Ã·', 'Ã', 'â', '+', '='}.contains(label);
     return Expanded(
       flex: label == '0' ? 2 : 1,
       child: Padding(
@@ -259,81 +261,80 @@ class _CalculatorPageState extends State<CalculatorPage> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        body: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(18, 14, 18, 16),
-            child: Column(
-              children: [
-                Expanded(
-                  flex: 3,
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(6, 4, 6, 14),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'CALCULATOR',
-                          style: TextStyle(
-                            color: Colors.white54,
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600,
-                            letterSpacing: 2.2,
-                          ),
-                        ),
-                        const Spacer(),
-                        Align(
-                          alignment: Alignment.centerRight,
-                          child: Text(
-                            expression,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              color: Colors.white54,
-                              fontSize: 21,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Align(
-                          alignment: Alignment.centerRight,
-                          child: FittedBox(
-                            fit: BoxFit.scaleDown,
-                            alignment: Alignment.centerRight,
-                            child: Text(
-                              display,
-                              key: const ValueKey<String>('calculator-display'),
-                              maxLines: 1,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 68,
-                                fontWeight: FontWeight.w300,
-                                height: 1.05,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
+    body: SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(18, 14, 18, 16),
+        child: Column(
+          children: [
+            Expanded(
+              flex: 3,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(6, 4, 6, 14),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'CALCULATOR',
+                      style: TextStyle(
+                        color: Colors.white54,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 2.2,
+                      ),
                     ),
-                  ),
-                ),
-                Expanded(
-                  flex: 7,
-                  child: Column(
-                    children: [
-                      for (final row in rows)
-                        Expanded(
-                          child: Row(
-                            children: [
-                              for (final label in row) keyButton(label),
-                            ],
+                    const Spacer(),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: Text(
+                        expression,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: Colors.white54,
+                          fontSize: 21,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.centerRight,
+                        child: Text(
+                          display,
+                          key: const ValueKey<String>('calculator-display'),
+                          maxLines: 1,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 68,
+                            fontWeight: FontWeight.w300,
+                            height: 1.05,
                           ),
                         ),
-                    ],
-                  ),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
-          ),
+            Expanded(
+              flex: 7,
+              child: Column(
+                children: [
+                  for (final row in rows)
+                    Expanded(
+                      child: Row(
+                        children: [for (final label in row) keyButton(label)],
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ],
         ),
-      );
+      ),
+    ),
+  );
 }
+

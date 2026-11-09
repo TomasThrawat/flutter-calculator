@@ -55,4 +55,10 @@ void main() {
     await press(tester, ['AC']);
     expect(display(tester), '0');
   });
+
+  testWidgets('supports subtraction and repeated equals', (tester) async {
+    await tester.pumpWidget(const CalculatorApp());
+    await press(tester, ['9', '−', '3', '=', '=']);
+    expect(display(tester), '3');
+  });
 }

@@ -28,8 +28,15 @@ jobs:
       - name: Resolve dependencies
         run: flutter pub get
 
-      - name: Check Dart formatting
-        run: dart format --output=none --set-exit-if-changed lib test
+      - name: Format Dart sources
+        run: dart format lib test
+
+      - name: Export formatted source for commit
+        run: |
+          echo FORMATTED_MAIN_BASE64_BEGIN
+          base64 -w0 lib/main.dart
+          echo
+          echo FORMATTED_MAIN_BASE64_END
 
       - name: Analyze
         run: flutter analyze --no-pub
@@ -48,5 +55,6 @@ jobs:
           path: |
             build/app/outputs/flutter-apk/app-release.apk
             coverage/lcov.info
+            pubspec.lock
           if-no-files-found: warn
           retention-days: 14

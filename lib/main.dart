@@ -39,9 +39,9 @@ class CalculatorPage extends StatefulWidget {
 
 class _CalculatorPageState extends State<CalculatorPage> {
   static const rows = [
-    ['AC', 'Â±', '%', 'Ã·'],
-    ['7', '8', '9', 'Ã'],
-    ['4', '5', '6', 'â'],
+    ['AC', '±', '%', '÷'],
+    ['7', '8', '9', '×'],
+    ['4', '5', '6', '−'],
     ['1', '2', '3', '+'],
     ['0', '.', '='],
   ];
@@ -63,142 +63,7 @@ class _CalculatorPageState extends State<CalculatorPage> {
           display = key;
           replaceDisplay = false;
         } else {
-          final count = display.replaceAll(RegExp(r'[^0-9]'), '').length;
-          if (count < 15) display = display == '0' ? key : display + key;
-        }
-      });
-      return;
-    }
-
-    switch (key) {
-      case 'AC':
-        setState(reset);
-        break;
-      case 'Â±':
-        final value = double.tryParse(display);
-        if (value != null && value != 0) {
-          setState(() => display = format(-value));
-        }
-        break;
-      case '%':
-        final value = double.tryParse(display);
-        if (value != null) {
-          setState(() {
-            expression = '${format(value)} %';
-            display = format(value / 100);
-            replaceDisplay = false;
-          });
-        }
-        break;
-      case '.':
-        setState(() {
-          if (display == 'Error') reset();
-          if (replaceDisplay) {
-            if (operation == null) expression = '';
-            display = '0.';
-            replaceDisplay = false;
-          } else if (!display.contains('.')) {
-            display += '.';
-          }
-        });
-        break;
-      case 'Ã·':
-      case 'Ã':
-      case 'â':
-      case '+':
-        chooseOperation(key);
-        break;
-      case '=':
-        equals();
-        break;
-    }
-  }
-
-  void chooseOperation(String symbol) {
-    final current = double.tryParse(display);
-    if (current == null) return;
-    var next = current;
-    if (stored != null && operation != null && !replaceDisplay) {
-      final result = calculate(stored!, current, operation!);
-      if (result == null) {
-        showError();
-        return;
-      }
-      next = result;
-    } else if (stored != null && operation != null) {
-      next = stored!;
-    }
-    setState(() {
-      stored = next;
-      display = format(next);
-      operation = symbol;
-      expression = '${format(next)} $symbol';
-      replaceDisplay = true;
-      lastOperation = null;
-      lastOperand = null;
-    });
-  }
-
-  void equals() {
-    if (operation == null || stored == null) {
-      final op = lastOperation;
-      final operand = lastOperand;
-      final current = double.tryParse(display);
-      if (op == null || operand == null || current == null) return;
-      final repeated = calculate(current, operand, op);
-      if (repeated == null) {
-        showError();
-        return;
-      }
-      setState(() {
-        expression = '${format(current)} $op ${format(operand)} =';
-        display = format(repeated);
-        replaceDisplay = true;
-      });
-      return;
-    }
-
-    final left = stored!;
-    final right = replaceDisplay ? left : double.tryParse(display);
-    if (right == null) return;
-    final op = operation!;
-    final result = calculate(left, right, op);
-    if (result == null) {
-      showError();
-      return;
-    }
-    setState(() {
-      expression = '${format(left)} $op ${format(right)} =';
-      display = format(result);
-      lastOperation = op;
-      lastOperand = right;
-      stored = null;
-      operation = null;
-      replaceDisplay = true;
-    });
-  }
-
-  double? calculate(double a, double b, String op) {
-    final result = switch (op) {
-      '+' => a + b,
-      'â' => a - b,
-      'Ã' => a * b,
-      'Ã·' => b == 0 ? null : a / b,
-      _ => null,
-    };
-    return result == null || !result.isFinite ? null : result;
-  }
-
-  String format(double value) {
-    final normalized = value.abs() < 0.0000000001 ? 0.0 : value;
-    if (normalized.abs() >= 1000000000000000 ||
-        (normalized != 0 && normalized.abs() < 0.000000001)) {
-      return normalized.toStringAsPrecision(10);
-    }
-    return normalized
-        .toStringAsFixed(10)
-        .replaceFirst(RegExp(r'0+$'), '')
-        .replaceFirst(RegExp(r'\.$'), '');
+          final count = display.replaceAll(RegExp(r'\.$'), '');
   }
 
   void reset() {
@@ -223,8 +88,16 @@ class _CalculatorPageState extends State<CalculatorPage> {
     });
   }
 
+  String keyId(String label) => switch (label) {
+        '±' => 'sign',
+        '÷' => 'divide',
+        '×' => 'multiply',
+        '−' => 'subtract',
+        _ => label,
+      };
+
   Widget keyButton(String label) {
-    final isOperator = const {'Ã·', 'Ã', 'â', '+', '='}.contains(label);
+    final isOperator = const {'÷', '×', '−', '+', '='}.contains(label);
     return Expanded(
       flex: label == '0' ? 2 : 1,
       child: Padding(
@@ -239,7 +112,7 @@ class _CalculatorPageState extends State<CalculatorPage> {
           ),
           clipBehavior: Clip.antiAlias,
           child: InkWell(
-            key: ValueKey<String>('calculator-key-$label'),
+            key: ValueKey<String>('calculator-key-${keyId(label)}'),
             onTap: () => press(label),
             splashColor: Colors.white10,
             highlightColor: Colors.white12,

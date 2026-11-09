@@ -5,7 +5,16 @@ import 'package:flutter_calculator/main.dart';
 void main() {
   Future<void> press(WidgetTester tester, List<String> keys) async {
     for (final key in keys) {
-      await tester.tap(find.byKey(ValueKey<String>('calculator-key-$key')));
+      final keyId = switch (key) {
+        '±' => 'sign',
+        '÷' => 'divide',
+        '×' => 'multiply',
+        '−' => 'subtract',
+        _ => key,
+      };
+      await tester.tap(
+        find.byKey(ValueKey<String>('calculator-key-$keyId')),
+      );
       await tester.pump();
     }
   }

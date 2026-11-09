@@ -3,3 +3,5 @@
 /build/
 /app/build/
 /captures/
+/key.properties
+/app/upload-keystore.jks
